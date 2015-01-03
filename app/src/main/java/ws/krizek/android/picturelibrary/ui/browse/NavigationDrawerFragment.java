@@ -1,5 +1,6 @@
 package ws.krizek.android.picturelibrary.ui.browse;
 
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
@@ -113,6 +114,12 @@ public class NavigationDrawerFragment extends Fragment {
         return mDrawerListView;
     }
 
+//    @Override
+//    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+//        super.onViewCreated(view, savedInstanceState);
+//        view.bringToFront();
+//    }
+
     public boolean isDrawerOpen() {
         return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
     }
@@ -146,14 +153,18 @@ public class NavigationDrawerFragment extends Fragment {
         ) {
             @Override
             public void onDrawerClosed(View drawerView) {
-                drawerView.bringToFront();
-
                 super.onDrawerClosed(drawerView);
                 if (!isAdded()) {
                     return;
                 }
 
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+            }
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                drawerView.bringToFront();
+                super.onDrawerSlide(drawerView, slideOffset);
             }
 
             @Override

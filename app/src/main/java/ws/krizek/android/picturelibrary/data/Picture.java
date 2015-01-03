@@ -1,13 +1,14 @@
 package ws.krizek.android.picturelibrary.data;
 
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Created by sharp on 3.1.15.
  */
-public class Picture {
+public class Picture implements Serializable {
     private String absolutePath;
     private boolean favorite;
     private Set<Tag> tags;

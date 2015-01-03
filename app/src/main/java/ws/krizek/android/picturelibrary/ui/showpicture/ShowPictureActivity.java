@@ -1,5 +1,7 @@
 package ws.krizek.android.picturelibrary.ui.showpicture;
 
+import ws.krizek.android.picturelibrary.bitmap.BitmapProcessor;
+import ws.krizek.android.picturelibrary.data.Picture;
 import ws.krizek.android.picturelibrary.ui.showpicture.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -9,6 +11,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 
 import ws.krizek.android.picturelibrary.R;
 
@@ -42,6 +46,8 @@ public class ShowPictureActivity extends Activity {
      */
     private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
+    public static final String EXTRA_PICTURE = "ws.krizek.android.picturelibrary.PICTURE";
+
     /**
      * The instance of the {@link SystemUiHider} for this activity.
      */
@@ -54,11 +60,11 @@ public class ShowPictureActivity extends Activity {
         setContentView(R.layout.activity_show_picture);
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final View contentView = findViewById(R.id.fullscreen_content);
+        final ImageView imageView = (ImageView) findViewById(R.id.image_fullscreen);
 
         // Set up an instance of SystemUiHider to control the system UI for
         // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
+        mSystemUiHider = SystemUiHider.getInstance(this, imageView, HIDER_FLAGS);
         mSystemUiHider.setup();
         mSystemUiHider
                 .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
@@ -99,7 +105,7 @@ public class ShowPictureActivity extends Activity {
                 });
 
         // Set up the user interaction to manually show or hide the system UI.
-        contentView.setOnClickListener(new View.OnClickListener() {
+        imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (TOGGLE_ON_CLICK) {
@@ -107,6 +113,18 @@ public class ShowPictureActivity extends Activity {
                 } else {
                     mSystemUiHider.show();
                 }
+            }
+        });
+
+
+        imageView.setTag(getIntent().getSerializableExtra(EXTRA_PICTURE));
+
+        imageView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                BitmapProcessor.loadImage(imageView, ((Picture) imageView.getTag()).getAbsolutePath());
+                imageView.getViewTreeObserver().removeOnPreDrawListener(this);
+                return true;
             }
         });
 

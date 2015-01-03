@@ -22,7 +22,7 @@
             android:name=".ui.showpicture.ShowPictureActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_show_picture"
-            android:theme="@style/FullscreenTheme" >
+            android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen" >
         </activity>
     </application>
 

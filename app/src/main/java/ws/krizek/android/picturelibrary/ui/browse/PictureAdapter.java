@@ -1,6 +1,7 @@
 package ws.krizek.android.picturelibrary.ui.browse;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import java.util.List;
 import ws.krizek.android.picturelibrary.data.Picture;
 import ws.krizek.android.picturelibrary.R;
 import ws.krizek.android.picturelibrary.bitmap.BitmapProcessor;
+import ws.krizek.android.picturelibrary.ui.showpicture.ShowPictureActivity;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
     private List<Picture> pictureDataset;
@@ -41,7 +43,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                     new LoadBitmapOnPreDrawListener());
         }
 
-        protected class FavoriteButtonOnClickListener implements View.OnClickListener {
+        private class FavoriteButtonOnClickListener implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 ImageButton button = (ImageButton) v;
@@ -55,7 +57,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             }
         }
 
-        public class LoadBitmapOnPreDrawListener implements ViewTreeObserver.OnPreDrawListener {
+        private class LoadBitmapOnPreDrawListener implements ViewTreeObserver.OnPreDrawListener {
             @Override
             public boolean onPreDraw() {
                 BitmapProcessor.loadImage(mImageView, ((Picture) mImageView.getTag()).getAbsolutePath());
@@ -84,7 +86,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         vh.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ctx, ((Picture)v.getTag()).getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(ctx, ((Picture)v.getTag()).getAbsolutePath(), Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(ctx, ShowPictureActivity.class);
+                intent.putExtra(ShowPictureActivity.EXTRA_PICTURE, (Picture)v.getTag());
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                ctx.startActivity(intent);
             }
         });
 
