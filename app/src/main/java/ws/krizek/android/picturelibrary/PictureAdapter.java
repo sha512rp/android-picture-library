@@ -6,14 +6,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import ws.krizek.android.picturelibrary.bitmap.BitmapProcessor;
-import ws.krizek.android.picturelibrary.bitmap.LoadBitmapOnGlobalLayout;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
     private List<Picture> pictureDataset;
@@ -35,7 +36,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             mImageView = (ImageView) v.findViewById(R.id.card_picture);
         }
 
-        private class FavoriteButtonOnClickListener implements View.OnClickListener {
+        public void setOnPreDrawListener() {
+            mImageView.getViewTreeObserver().addOnPreDrawListener(
+                    new LoadBitmapOnPreDrawListener());
+        }
+
+        protected class FavoriteButtonOnClickListener implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 ImageButton button = (ImageButton) v;
@@ -46,6 +52,15 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                     button.setTag(true);
                     button.setImageResource(R.drawable.ic_favorite);
                 }
+            }
+        }
+
+        public class LoadBitmapOnPreDrawListener implements ViewTreeObserver.OnPreDrawListener {
+            @Override
+            public boolean onPreDraw() {
+                BitmapProcessor.loadImage(mImageView, ((Picture) mImageView.getTag()).getAbsolutePath());
+                mImageView.getViewTreeObserver().removeOnPreDrawListener(this);
+                return true;
             }
         }
     }
@@ -66,7 +81,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
 
         PictureViewHolder vh = new PictureViewHolder((View)v);
 
-
         vh.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,18 +96,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     public void onBindViewHolder(PictureViewHolder holder, int position) {
         holder.mImageView.setImageBitmap(null);
         holder.mImageView.setTag(pictureDataset.get(position));
-
-        // if this is called before ImageView is measured
-//        if (holder.mImageView.getWidth() == 0) {
-//            holder.mImageView.getViewTreeObserver().addOnGlobalLayoutListener(
-//                    new LoadBitmapOnGlobalLayout(holder.mImageView,
-//                            pictureDataset.get(position).getAbsolutePath()));
-//        } else {
-            BitmapProcessor.loadImage(holder.mImageView,
-                    pictureDataset.get(position).getAbsolutePath());
-//        }
-
-        Log.d(Constants.LOG, "P:"+position+" "+pictureDataset.get(position).getAbsolutePath());
+        holder.setOnPreDrawListener();
     }
 
     // Return the size of your dataset (invoked by the layout manager)

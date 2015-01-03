@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -79,7 +80,15 @@ public class PictureFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_picture, container, false);
+        View view = inflater.inflate(R.layout.fragment_picture, container, false);
+
+        recList = (RecyclerView) view.findViewById(R.id.my_recycler_view);
+        recList.setHasFixedSize(true);
+        GridLayoutManager glm = new GridLayoutManager(getActivity(), 2);
+        glm.setOrientation(GridLayoutManager.VERTICAL);
+        recList.setLayoutManager(glm);
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -91,17 +100,9 @@ public class PictureFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         super.onViewCreated(view, savedInstanceState);
 
-        recList = (RecyclerView) getView().findViewById(R.id.my_recycler_view);
-
-        recList.setHasFixedSize(true);
-        GridLayoutManager glm = new GridLayoutManager(getActivity(), 2);
-        glm.setOrientation(GridLayoutManager.VERTICAL);
-        recList.setLayoutManager(glm);
         recList.setAdapter(mAdapter);
-
     }
 
     @Override
