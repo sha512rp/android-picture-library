@@ -6,6 +6,8 @@ import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 
+import ws.krizek.android.picturelibrary.Picture;
+
 /**
  * Created by sharp on 3.1.15.
  */
@@ -35,7 +37,10 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         if (imageViewReference != null && bitmap != null) {
             final ImageView imageView = imageViewReference.get();
             if (imageView != null) {
-                imageView.setImageBitmap(bitmap);
+                Picture p = (Picture) imageView.getTag();
+                if (p.getAbsolutePath() == path) {
+                    imageView.setImageBitmap(bitmap);
+                }
             }
         }
     }

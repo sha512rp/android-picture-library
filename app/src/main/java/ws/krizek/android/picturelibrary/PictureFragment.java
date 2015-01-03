@@ -72,7 +72,7 @@ public class PictureFragment extends Fragment {
             new ImageFinder().execute(directoryPath);
         }
 
-        mAdapter = new PictureAdapter(pictureDataset);
+        mAdapter = new PictureAdapter(getActivity().getApplicationContext(), pictureDataset);
     }
 
     @Override

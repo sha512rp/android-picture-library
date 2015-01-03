@@ -14,12 +14,7 @@ import java.lang.ref.WeakReference;
 public class BitmapProcessor {
 
     public static void loadImage(ImageView view, String imagePath) {
-        // if this is called before ImageView is measured
-        if (view.getWidth() == 0) {
-            view.getViewTreeObserver().addOnGlobalLayoutListener(new LoadBitmapOnGlobalLayout(view, imagePath));
-        } else {
-            (new BitmapWorkerTask(view)).execute(imagePath);
-        }
+        new BitmapWorkerTask(view).execute(imagePath);
     }
 
     public static Bitmap decodeSampledBitmapFromFile(String path, int reqWidth, int reqHeight) {
@@ -61,17 +56,3 @@ public class BitmapProcessor {
     }
 }
 
-class LoadBitmapOnGlobalLayout implements ViewTreeObserver.OnGlobalLayoutListener {
-    private ImageView view;
-    private String path;
-
-    public LoadBitmapOnGlobalLayout(ImageView view, String path) {
-        this.view = view;
-        this.path = path;
-    }
-
-    @Override
-    public void onGlobalLayout() {
-        new BitmapWorkerTask(view).execute(path);
-    }
-}

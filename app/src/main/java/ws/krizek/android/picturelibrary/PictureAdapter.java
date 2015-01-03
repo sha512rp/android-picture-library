@@ -1,24 +1,23 @@
 package ws.krizek.android.picturelibrary;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import ws.krizek.android.picturelibrary.bitmap.BitmapProcessor;
+import ws.krizek.android.picturelibrary.bitmap.LoadBitmapOnGlobalLayout;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
     private List<Picture> pictureDataset;
+    Context ctx;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -51,8 +50,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         }
     }
 
-    public PictureAdapter(List<Picture> pictureDataset) {
+    public PictureAdapter(Context ctx, List<Picture> pictureDataset) {
         this.pictureDataset = pictureDataset;
+        this.ctx = ctx;
     }
 
     // Create new views (invoked by the layout manager)
@@ -65,21 +65,35 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         // set the view's size, margins, paddings and layout parameters
 
         PictureViewHolder vh = new PictureViewHolder((View)v);
+
+
+        vh.mImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(ctx, ((Picture)v.getTag()).getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return vh;
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(PictureViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
-        //holder.mPictureCardView.setText(pictureDataset[position]);
+        holder.mImageView.setImageBitmap(null);
+        holder.mImageView.setTag(pictureDataset.get(position));
 
-        BitmapProcessor.loadImage(holder.mImageView,
-                pictureDataset.get(position).getAbsolutePath());
+        // if this is called before ImageView is measured
+//        if (holder.mImageView.getWidth() == 0) {
+//            holder.mImageView.getViewTreeObserver().addOnGlobalLayoutListener(
+//                    new LoadBitmapOnGlobalLayout(holder.mImageView,
+//                            pictureDataset.get(position).getAbsolutePath()));
+//        } else {
+            BitmapProcessor.loadImage(holder.mImageView,
+                    pictureDataset.get(position).getAbsolutePath());
+//        }
 
-        Log.d(Constants.LOG, "W:"+holder.mImageView.getWidth()+"H:"+holder.mImageView.getHeight());
-        Log.d(Constants.LOG, pictureDataset.get(position).getAbsolutePath());
+        Log.d(Constants.LOG, "P:"+position+" "+pictureDataset.get(position).getAbsolutePath());
     }
 
     // Return the size of your dataset (invoked by the layout manager)
