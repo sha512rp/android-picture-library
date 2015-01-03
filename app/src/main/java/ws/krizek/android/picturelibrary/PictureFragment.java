@@ -2,12 +2,21 @@ package ws.krizek.android.picturelibrary;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Environment;
 import android.support.v7.widget.*;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -19,54 +28,51 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class PictureFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_DIRECTORY = "directoryPath";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private static final String DEFAULT_PICTURE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() + "/Pictures";
+
+    private String directoryPath = DEFAULT_PICTURE_DIRECTORY;
+    private File directory;
 
     private RecyclerView recList;
-
     private OnFragmentInteractionListener mListener;
-
     private PictureAdapter mAdapter;
-    private String[] myDataset = {"1", "2", "3", "1", "2", "3", "1", "2", "3", "1", "2", "3"};
+    private List<Picture> pictureDataset;
 
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param directory Place to look for pictures.
      * @return A new instance of fragment PictureFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static PictureFragment newInstance(String param1, String param2) {
+    public static PictureFragment newInstance(String directory) {
         PictureFragment fragment = new PictureFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putSerializable(ARG_DIRECTORY, directory);
         fragment.setArguments(args);
         return fragment;
     }
 
     public PictureFragment() {
-        // Required empty public constructor
+        pictureDataset = new ArrayList<>();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            directoryPath = getArguments().getString(ARG_DIRECTORY);
         }
 
-        mAdapter = new PictureAdapter(myDataset);
+        directory = new File(directoryPath);
+        if (directory.isDirectory()) {
+            pictureDataset.clear();
+            new ImageFinder().execute(directoryPath);
+        }
 
+        mAdapter = new PictureAdapter(pictureDataset);
     }
 
     @Override
@@ -131,4 +137,39 @@ public class PictureFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
+    private class ImageFinder extends AsyncTask<String, Void, Void> {
+
+        public void walk(File root) {
+
+            File[] list = root.listFiles();
+
+            for (File f : list) {
+                if (f.isDirectory()) {
+                    Log.d(Constants.LOG, "Dir: " + f.getAbsoluteFile());
+                    walk(f);
+                }
+                else {
+                    Log.d(Constants.LOG, "File: " + f.getAbsoluteFile());
+                    String filename = f.getName().toLowerCase();
+                    if (filename.endsWith("jpg")||
+                            filename.endsWith("jpeg") ||
+                            filename.endsWith("png") ||
+                            filename.endsWith("bmp")) {
+                        pictureDataset.add(new Picture(f.getAbsolutePath()));
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected Void doInBackground(String... path) {
+            walk(new File(path[0]));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
 }
