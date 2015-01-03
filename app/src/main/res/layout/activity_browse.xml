@@ -19,12 +19,12 @@
     <fragment android:id="@+id/navigation_drawer"
         android:layout_width="@dimen/navigation_drawer_width" android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:name="ws.krizek.android.picturelibrary.NavigationDrawerFragment"
+        android:name="ws.krizek.android.picturelibrary.ui.browse.NavigationDrawerFragment"
         tools:layout="@layout/fragment_navigation_drawer" />
 
     <fragment android:id="@+id/browser"
         android:layout_width="match_parent" android:layout_height="match_parent"
-        android:name="ws.krizek.android.picturelibrary.PictureFragment"
+        android:name="ws.krizek.android.picturelibrary.ui.browse.PictureFragment"
         tools:layout="@layout/fragment_picture" />
 
 </android.support.v4.widget.DrawerLayout>

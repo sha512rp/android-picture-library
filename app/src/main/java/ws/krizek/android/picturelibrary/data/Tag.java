@@ -1,7 +1,6 @@
-package ws.krizek.android.picturelibrary;
+package ws.krizek.android.picturelibrary.data;
 
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**

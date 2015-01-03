@@ -1,4 +1,4 @@
-package ws.krizek.android.picturelibrary;
+package ws.krizek.android.picturelibrary.ui.browse;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -11,13 +11,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import ws.krizek.android.picturelibrary.data.Picture;
+import ws.krizek.android.picturelibrary.R;
+import ws.krizek.android.picturelibrary.config.Constants;
 
 
 /**

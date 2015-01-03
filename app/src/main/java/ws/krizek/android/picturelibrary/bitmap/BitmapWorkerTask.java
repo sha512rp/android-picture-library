@@ -6,7 +6,7 @@ import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 
-import ws.krizek.android.picturelibrary.Picture;
+import ws.krizek.android.picturelibrary.data.Picture;
 
 /**
  * Created by sharp on 3.1.15.

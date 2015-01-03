@@ -2,6 +2,8 @@ package ws.krizek.android.picturelibrary;
 
 import junit.framework.TestCase;
 
+import ws.krizek.android.picturelibrary.data.Tag;
+
 /**
  * Created by sharp on 3.1.15.
  */

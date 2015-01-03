@@ -1,4 +1,4 @@
-package ws.krizek.android.picturelibrary;
+package ws.krizek.android.picturelibrary.ui.browse;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -14,6 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+
+import ws.krizek.android.picturelibrary.R;
+import ws.krizek.android.picturelibrary.config.Constants;
 
 
 public class BrowseActivity extends ActionBarActivity

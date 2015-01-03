@@ -1,4 +1,4 @@
-package ws.krizek.android.picturelibrary;
+package ws.krizek.android.picturelibrary.config;
 
 /**
  * Created by sharp on 3.1.15.
