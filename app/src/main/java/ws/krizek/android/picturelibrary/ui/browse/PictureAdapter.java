@@ -34,9 +34,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     private List<Picture> pictureDataset;
     Context ctx;
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
     public static class PictureViewHolder extends RecyclerView.ViewHolder {
         protected ImageButton mFavoriteButton;
         protected ImageButton mTagsButton;
@@ -96,10 +93,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                 }
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MyApplication.getBrowseActivity());
-                // Set the dialog title
                 builder.setTitle(R.string.tag_selection_dialog_title)
-                        // Specify the list array, the items to be selected by default (null for none),
-                        // and the listener through which to receive callbacks when items are selected
                         .setMultiChoiceItems(tagArray, initialSelectedTags,
                                 new DialogInterface.OnMultiChoiceClickListener() {
                                     @Override
@@ -112,7 +106,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                                         }
                                     }
                                 })
-                                // Set the action buttons
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
@@ -158,15 +151,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.picture_card_view, parent, false);
-        // set the view's size, margins, paddings and layout parameters
 
         PictureViewHolder vh = new PictureViewHolder((View)v);
 
         vh.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(ctx, ((Picture)v.getTag()).getAbsolutePath(), Toast.LENGTH_SHORT).show();
-
                 Intent intent = new Intent(ctx, ShowPictureActivity.class);
                 intent.putExtra(ShowPictureActivity.EXTRA_PICTURE_INDEX, pictureDataset.indexOf(v.getTag()));
                 intent.putExtra(ShowPictureActivity.EXTRA_PICTURE_COLLECTION, (Serializable)pictureDataset);
@@ -194,7 +184,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         holder.setOnPreDrawListener();
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return pictureDataset.size();

@@ -13,7 +13,7 @@ import ws.krizek.android.picturelibrary.config.Constants;
 public class DBHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "PictureLibrary.db";
-    public static final int DB_VERSION = 5;
+    public static final int DB_VERSION = 6;
 
     public static final String PICTURES_TABLE_NAME = "pictures";
     public static final String PICTURES_COLUMN_ID = "picture_id";

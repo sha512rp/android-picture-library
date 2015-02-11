@@ -3,14 +3,9 @@ package ws.krizek.android.picturelibrary.ui.showpicture;
 import ws.krizek.android.picturelibrary.bitmap.BitmapProcessor;
 import ws.krizek.android.picturelibrary.config.Constants;
 import ws.krizek.android.picturelibrary.data.Picture;
-import ws.krizek.android.picturelibrary.ui.showpicture.util.SystemUiHider;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.gesture.GestureOverlayView;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -23,39 +18,15 @@ import java.util.List;
 
 import ws.krizek.android.picturelibrary.R;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
- */
+
 public class ShowPictureActivity extends Activity implements GestureDetector.OnGestureListener {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
+
     private static final boolean AUTO_HIDE = false;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
     private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-
-    /**
-     * If set, will toggle the system UI visibility upon interaction. Otherwise,
-     * will show the system UI visibility upon interaction.
-     */
     private static final boolean TOGGLE_ON_CLICK = true;
-
-    /**
-     * The flags to pass to {@link SystemUiHider#getInstance}.
-     */
-    private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
     public static final String EXTRA_PICTURE_INDEX = "ws.krizek.android.picturelibrary.PICTURE_INDEX";
     public static final String EXTRA_PICTURE_COLLECTION = "ws.krizek.android.picturelibrary.PICTURE_COLLECTION";
-
 
     private boolean decorVisible = false;
 
@@ -79,7 +50,6 @@ public class ShowPictureActivity extends Activity implements GestureDetector.OnG
 
         setContentView(R.layout.activity_show_picture);
 
-
         final ViewConfiguration vc = ViewConfiguration.get(getApplicationContext());
         swipeMinDistance = vc.getScaledPagingTouchSlop();
         swipeThresholdVelocity = vc.getScaledMinimumFlingVelocity();
@@ -91,7 +61,6 @@ public class ShowPictureActivity extends Activity implements GestureDetector.OnG
         gestureScanner = new GestureDetector(this, this);
 
         pictureDataset = (List<Picture>) getIntent().getSerializableExtra(EXTRA_PICTURE_COLLECTION);
-
 
         setPicture(pictureDataset.get(getIntent().getIntExtra(EXTRA_PICTURE_INDEX, 0)));
     }
@@ -172,7 +141,6 @@ public class ShowPictureActivity extends Activity implements GestureDetector.OnG
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (Math.abs(velocityX) > swipeThresholdVelocity) {
-            Log.d(Constants.LOG, "So flingy...");
             int i = pictureDataset.indexOf((Picture)imageView.getTag());
             if (e1.getX() - e2.getX() > swipeMinDistance) {
                 // gesture right
@@ -185,8 +153,6 @@ public class ShowPictureActivity extends Activity implements GestureDetector.OnG
                     setPicture(pictureDataset.get(i - 1));
                 }
             }
-        } else {
-            Log.d(Constants.LOG, "Not flingy enough.");
         }
 
         return false;
