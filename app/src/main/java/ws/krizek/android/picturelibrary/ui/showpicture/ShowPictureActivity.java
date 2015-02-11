@@ -1,18 +1,25 @@
 package ws.krizek.android.picturelibrary.ui.showpicture;
 
 import ws.krizek.android.picturelibrary.bitmap.BitmapProcessor;
+import ws.krizek.android.picturelibrary.config.Constants;
 import ws.krizek.android.picturelibrary.data.Picture;
 import ws.krizek.android.picturelibrary.ui.showpicture.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.gesture.GestureOverlayView;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+
+import java.util.List;
 
 import ws.krizek.android.picturelibrary.R;
 
@@ -22,12 +29,12 @@ import ws.krizek.android.picturelibrary.R;
  *
  * @see SystemUiHider
  */
-public class ShowPictureActivity extends Activity {
+public class ShowPictureActivity extends Activity implements GestureDetector.OnGestureListener {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
      */
-    private static final boolean AUTO_HIDE = true;
+    private static final boolean AUTO_HIDE = false;
 
     /**
      * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
@@ -46,12 +53,25 @@ public class ShowPictureActivity extends Activity {
      */
     private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
-    public static final String EXTRA_PICTURE = "ws.krizek.android.picturelibrary.PICTURE";
+    public static final String EXTRA_PICTURE_INDEX = "ws.krizek.android.picturelibrary.PICTURE_INDEX";
+    public static final String EXTRA_PICTURE_COLLECTION = "ws.krizek.android.picturelibrary.PICTURE_COLLECTION";
 
-    /**
-     * The instance of the {@link SystemUiHider} for this activity.
-     */
-    private SystemUiHider mSystemUiHider;
+
+    private boolean decorVisible = false;
+
+    private int mControlsHeight;
+    private int mShortAnimTime;
+
+    private List<Picture> pictureDataset;
+
+    private int swipeMinDistance;
+    private int swipeThresholdVelocity;
+    private int swipeMaxOffPath;
+
+    private ImageView imageView;
+    private View controlsView;
+
+    private GestureDetector gestureScanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,65 +79,52 @@ public class ShowPictureActivity extends Activity {
 
         setContentView(R.layout.activity_show_picture);
 
-        final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final ImageView imageView = (ImageView) findViewById(R.id.image_fullscreen);
 
-        // Set up an instance of SystemUiHider to control the system UI for
-        // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, imageView, HIDER_FLAGS);
-        mSystemUiHider.setup();
-        mSystemUiHider
-                .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-                    // Cached values.
-                    int mControlsHeight;
-                    int mShortAnimTime;
+        final ViewConfiguration vc = ViewConfiguration.get(getApplicationContext());
+        swipeMinDistance = vc.getScaledPagingTouchSlop();
+        swipeThresholdVelocity = vc.getScaledMinimumFlingVelocity();
+        swipeMaxOffPath = vc.getScaledTouchSlop();
 
-                    @Override
-                    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-                    public void onVisibilityChange(boolean visible) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-                            // If the ViewPropertyAnimator API is available
-                            // (Honeycomb MR2 and later), use it to animate the
-                            // in-layout UI controls at the bottom of the
-                            // screen.
-                            if (mControlsHeight == 0) {
-                                mControlsHeight = controlsView.getHeight();
-                            }
-                            if (mShortAnimTime == 0) {
-                                mShortAnimTime = getResources().getInteger(
-                                        android.R.integer.config_shortAnimTime);
-                            }
-                            controlsView.animate()
-                                    .translationY(visible ? 0 : mControlsHeight)
-                                    .setDuration(mShortAnimTime);
-                        } else {
-                            // If the ViewPropertyAnimator APIs aren't
-                            // available, simply show or hide the in-layout UI
-                            // controls.
-                            controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
-                        }
+        controlsView = findViewById(R.id.fullscreen_content_controls);
+        imageView = (ImageView) findViewById(R.id.image_fullscreen);
 
-                        if (visible && AUTO_HIDE) {
-                            // Schedule a hide().
-                            delayedHide(AUTO_HIDE_DELAY_MILLIS);
-                        }
-                    }
-                });
+        gestureScanner = new GestureDetector(this, this);
 
-        // Set up the user interaction to manually show or hide the system UI.
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (TOGGLE_ON_CLICK) {
-                    mSystemUiHider.toggle();
-                } else {
-                    mSystemUiHider.show();
-                }
-            }
-        });
+        pictureDataset = (List<Picture>) getIntent().getSerializableExtra(EXTRA_PICTURE_COLLECTION);
 
 
-        imageView.setTag(getIntent().getSerializableExtra(EXTRA_PICTURE));
+        setPicture(pictureDataset.get(getIntent().getIntExtra(EXTRA_PICTURE_INDEX, 0)));
+    }
+    private void hideSystemUI() {
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LOW_PROFILE |
+                View.SYSTEM_UI_FLAG_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+    }
+
+    private void toggleDecorUI() {
+        if (mControlsHeight == 0) {
+            mControlsHeight = controlsView.getHeight();
+        }
+        if (mShortAnimTime == 0) {
+            mShortAnimTime = getResources().getInteger(
+                    android.R.integer.config_shortAnimTime);
+        }
+        controlsView.animate()
+                .translationY(decorVisible ? 0 : mControlsHeight)
+                .setDuration(mShortAnimTime);
+        decorVisible = !decorVisible;
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        hideSystemUI();
+    }
+
+    private void setPicture(Picture p) {
+        imageView.setTag(p);
 
         imageView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
@@ -128,52 +135,60 @@ public class ShowPictureActivity extends Activity {
             }
         });
 
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        imageView.invalidate();
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureScanner.onTouchEvent(event);
     }
 
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
 
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        toggleDecorUI();
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if (Math.abs(velocityX) > swipeThresholdVelocity) {
+            Log.d(Constants.LOG, "So flingy...");
+            int i = pictureDataset.indexOf((Picture)imageView.getTag());
+            if (e1.getX() - e2.getX() > swipeMinDistance) {
+                // gesture right
+                if (i < pictureDataset.size() - 1) {
+                    setPicture(pictureDataset.get(i + 1));
+                }
+            } else if (e2.getX() - e1.getX() > swipeMinDistance) {
+                // gesture left
+                if (i > 0) {
+                    setPicture(pictureDataset.get(i - 1));
+                }
             }
-            return false;
+        } else {
+            Log.d(Constants.LOG, "Not flingy enough.");
         }
-    };
 
-    Handler mHideHandler = new Handler();
-    Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mSystemUiHider.hide();
-        }
-    };
-
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
-    private void delayedHide(int delayMillis) {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
+        return false;
     }
 }

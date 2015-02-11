@@ -8,6 +8,8 @@ import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 
+import ws.krizek.android.picturelibrary.config.Constants;
+
 /**
  * Created by sharp on 3.1.15.
  */
@@ -46,8 +48,10 @@ public class BitmapProcessor {
 
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
+            while (width / inSampleSize > Constants.MAX_BITMAP_SIZE ||
+                    height / inSampleSize > Constants.MAX_BITMAP_SIZE ||
+                    ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth)) {
                 inSampleSize *= 2;
             }
         }

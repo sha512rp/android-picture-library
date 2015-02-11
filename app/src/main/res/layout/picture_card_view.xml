@@ -44,12 +44,12 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.34">
 
-                <ImageButton
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_not_favorite"
-                    android:background="@null"
-                    android:scaleType="center"/>
+                <!--<ImageButton-->
+                    <!--android:layout_width="fill_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:src="@drawable/ic_not_favorite"-->
+                    <!--android:background="@null"-->
+                    <!--android:scaleType="center"/>-->
 
             </RelativeLayout>
 
@@ -59,9 +59,10 @@
                 android:layout_weight="0.33">
 
                 <ImageButton
+                    android:id="@+id/card_tags_button"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_not_favorite"
+                    android:src="@drawable/ic_tags"
                     android:background="@null"
                     android:scaleType="center"/>
 

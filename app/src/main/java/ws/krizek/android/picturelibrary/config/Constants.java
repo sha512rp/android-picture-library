@@ -5,4 +5,5 @@ package ws.krizek.android.picturelibrary.config;
  */
 public interface Constants {
     String LOG = "ws.krizek.android.picturelibrary";
+    int MAX_BITMAP_SIZE = 2048;
 }

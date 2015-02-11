@@ -13,5 +13,11 @@
     <string name="title_activity_show_picture">ShowPictureActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="tag_selection_dialog_title">Tagy</string>
+    <string name="ok">Potvrdit</string>
+    <string name="cancel">Zrušit</string>
+    <string name="all_pictures">All</string>
+    <string name="untagged_pictures">Untagged</string>
+    <string name="add_new_tag">+ New Tag</string>
 
 </resources>

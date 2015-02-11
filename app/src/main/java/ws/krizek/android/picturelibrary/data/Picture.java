@@ -1,17 +1,25 @@
 package ws.krizek.android.picturelibrary.data;
 
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import ws.krizek.android.picturelibrary.config.Constants;
+
 /**
  * Created by sharp on 3.1.15.
  */
-public class Picture implements Serializable {
+public class Picture extends Persistable implements Serializable {
     private String absolutePath;
     private boolean favorite;
     private Set<Tag> tags;
+
+    public Picture() {
+        tags = new HashSet<>();
+    }
 
     public Picture(String absolutePath) {
         this.absolutePath = absolutePath;
@@ -19,11 +27,20 @@ public class Picture implements Serializable {
         tags = new HashSet<>();
     }
 
+    public void setAbsolutePath(String absolutePath) {
+        this.absolutePath = absolutePath;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
     public String getAbsolutePath() {
         return absolutePath;
     }
 
     public boolean isFavorite() {
+        //Log.d(Constants.LOG, "Picture: " +absolutePath+ " isFavorite = "+favorite);
         return favorite;
     }
 

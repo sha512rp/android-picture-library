@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.*;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,17 +18,8 @@ import java.util.List;
 
 import ws.krizek.android.picturelibrary.data.Picture;
 import ws.krizek.android.picturelibrary.R;
-import ws.krizek.android.picturelibrary.config.Constants;
+import ws.krizek.android.picturelibrary.db.PictureDriver;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PictureFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PictureFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PictureFragment extends Fragment {
     private static final String ARG_DIRECTORY = "directoryPath";
 
@@ -40,15 +31,9 @@ public class PictureFragment extends Fragment {
     private RecyclerView recList;
     private OnFragmentInteractionListener mListener;
     private PictureAdapter mAdapter;
+
     private List<Picture> pictureDataset;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param directory Place to look for pictures.
-     * @return A new instance of fragment PictureFragment.
-     */
     public static PictureFragment newInstance(String directory) {
         PictureFragment fragment = new PictureFragment();
         Bundle args = new Bundle();
@@ -92,7 +77,6 @@ public class PictureFragment extends Fragment {
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -124,18 +108,17 @@ public class PictureFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+    public void setPictureDataset(List<Picture> pictureDataset) {
+        this.pictureDataset.clear();
+        for (Picture picture: pictureDataset) {
+            this.pictureDataset.add(picture);
+        }
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
 
@@ -143,21 +126,21 @@ public class PictureFragment extends Fragment {
 
         public void walk(File root) {
 
+            Picture picture;
             File[] list = root.listFiles();
 
             for (File f : list) {
                 if (f.isDirectory()) {
-                    Log.d(Constants.LOG, "Dir: " + f.getAbsoluteFile());
                     walk(f);
                 }
                 else {
-                    Log.d(Constants.LOG, "File: " + f.getAbsoluteFile());
                     String filename = f.getName().toLowerCase();
                     if (filename.endsWith("jpg")||
                             filename.endsWith("jpeg") ||
                             filename.endsWith("png") ||
                             filename.endsWith("bmp")) {
-                        pictureDataset.add(new Picture(f.getAbsolutePath()));
+                        picture = PictureDriver.getByPath(f.getAbsolutePath());
+                        pictureDataset.add(picture);
                     }
                 }
             }

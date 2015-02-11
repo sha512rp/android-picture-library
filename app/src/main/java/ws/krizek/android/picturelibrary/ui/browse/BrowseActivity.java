@@ -1,12 +1,15 @@
 package ws.krizek.android.picturelibrary.ui.browse;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,9 +17,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.EditText;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ws.krizek.android.picturelibrary.R;
 import ws.krizek.android.picturelibrary.config.Constants;
+import ws.krizek.android.picturelibrary.data.Picture;
+import ws.krizek.android.picturelibrary.data.Tag;
+import ws.krizek.android.picturelibrary.db.PictureDriver;
+import ws.krizek.android.picturelibrary.db.TagDriver;
+import ws.krizek.android.picturelibrary.util.MyApplication;
 
 
 public class BrowseActivity extends ActionBarActivity
@@ -33,10 +45,15 @@ public class BrowseActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
 
+    private List<Tag> tagList = new ArrayList<>();
+
+    private String mNewTag;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse);
+        MyApplication.setBrowseActivity(this);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -46,6 +63,9 @@ public class BrowseActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        tagList = TagDriver.getAll();
+        mNavigationDrawerFragment.setTags(tagList);
 
         Log.e(Constants.LOG, "onCreate called");
     }
@@ -60,17 +80,56 @@ public class BrowseActivity extends ActionBarActivity
     }
 
     public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
+        List<Picture> pictureDataset = new ArrayList<>();
+
+        if (number == 1) {
+            mTitle = getString(R.string.all_pictures);
+            pictureDataset = PictureDriver.getAll();
+        } else if (number == 2) {
+            mTitle = getString(R.string.untagged_pictures);
+            pictureDataset = PictureDriver.getUntagged();
+        } else if (number == tagList.size() + 3) {
+            // create new tag, select all?
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("New Tag");
+
+            // Set up the input
+            final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+            builder.setView(input);
+
+            // Set up the buttons
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mNewTag = input.getText().toString();
+                    Tag.getTag(mNewTag);
+                    tagList = TagDriver.getAll();
+                    mNavigationDrawerFragment.setTags(tagList);
+                    onSectionAttached(1);
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
+        } else if (number > tagList.size() + 3) {
+            onSectionAttached(1);
+        } else {
+            Tag tag = tagList.get(number - 3);
+            mTitle = tag.getLabel();
+            pictureDataset = PictureDriver.getByTag(tag);
         }
+
+        Log.d(Constants.LOG, "size: " + pictureDataset.size());
+
+        PictureFragment pf = (PictureFragment)
+                getSupportFragmentManager().findFragmentById(R.id.browser);
+        pf.setPictureDataset(pictureDataset);
     }
 
     public void restoreActionBar() {

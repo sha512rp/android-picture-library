@@ -18,12 +18,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.List;
+
 import ws.krizek.android.picturelibrary.R;
+import ws.krizek.android.picturelibrary.data.Tag;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -60,6 +64,8 @@ public class NavigationDrawerFragment extends Fragment {
     private int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
+
+    private Adapter mDrawerAdapter;
 
     public NavigationDrawerFragment() {
     }
@@ -105,20 +111,34 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
-                        getString(R.string.title_section1),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
+                        getString(R.string.all_pictures),
+                        getString(R.string.untagged_pictures),
+                        getString(R.string.add_new_tag)
                 }));
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 
         return mDrawerListView;
     }
 
-//    @Override
-//    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-//        super.onViewCreated(view, savedInstanceState);
-//        view.bringToFront();
-//    }
+    public void setTags(List<Tag> tags) {
+        String[] choices = new String[tags.size() + 3];
+        choices[0] = getString(R.string.all_pictures);
+        choices[1] = getString(R.string.untagged_pictures);
+        int i = 2;
+        for (Tag tag: tags) {
+            choices[i] = tag.getLabel();
+            i++;
+        }
+        choices[i] = getString(R.string.add_new_tag);
+
+        mDrawerListView.setAdapter(new ArrayAdapter<String>(
+                getActionBar().getThemedContext(),
+                android.R.layout.simple_list_item_activated_1,
+                android.R.id.text1,
+                choices));
+
+        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+    }
 
     public boolean isDrawerOpen() {
         return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
